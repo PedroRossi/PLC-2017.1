@@ -10,13 +10,18 @@ width = 480
 height = 640
 w = fromIntegral width :: GLdouble
 h = fromIntegral height :: GLdouble
+invaderInitialPos :: Double
 invaderInitialPos = 0.0
 
 main :: IO ()
 main = do
-  let winConfig = ((100,80),(width,height),"A brief example!")
+  let winConfig = ((100,0),(width,height),"A brief example!")
       bmpList = [("assets/background.bmp", Nothing)]
       gameMap = textureMap 0 1024.0 770.0 w h
+      spaceShip = objectGroup "spaceShipGroup" [createSpaceShip]
+      spaceShipFire = objectGroup "spaceShipFireGroup" [createSpaceShipFire]
+      invader = objectGroup "invaderGroup" [createInvader]
+      invaderFire = objectGroup "invaderFireGroup" [createInvaderFire]
       initScore = Score 0
       input = [
         (SpecialKey KeyRight, StillDown, moveSpaceShipToRight),
@@ -24,17 +29,28 @@ main = do
         -- (SpecialKey SpaceBar, StillDown, shoot),
         (Char 'q', Press, \_ _ -> funExit)
         ]
-  funInit winConfig gameMap objectList () initScore input gameCycle (Timer 30) bmpList
+  funInit winConfig
+          gameMap
+          [spaceShip, invader, spaceShipFire, invaderFire]
+          ()
+          initScore
+          input
+          gameCycle
+          (Timer 40)
+          bmpList
 
-objectList :: [ ObjectManager () ]
-objectList =
-  let spaceShip = objectGroup "spaceShipGroup" [createSpaceShip]
-      invader = objectGroup "invaderGroup" [createInvader]
-      -- invaders = objectGroup "invadersGroup" [createInvaders]
-  in [spaceShip] ++ genInvaders invader
 
-genInvaders :: ObjectManager () -> [ ObjectManager () ]
-genInvaders x = [x, x, x]
+createSpaceShip :: GameObject ()
+createSpaceShip =
+  let bound = [(0,0),(100,0),(50,100)]
+      pic   = Basic (Polyg bound 1.0 1.0 1.0 Filled)
+  in object "spaceShip" pic False (w/2, 20) (0,0) ()
+
+createSpaceShipFire :: GameObject ()
+createSpaceShipFire =
+  let bound = [(0,0),(1,0),(1,1),(0,1)]
+      pic   = Basic (Polyg bound 1.0 1.0 1.0 Filled)
+  in object "spaceShip" pic False (w/2, 20) (0,0) ()
 
 createInvader :: GameObject ()
 createInvader = do
@@ -43,11 +59,12 @@ createInvader = do
   let invaderInitialPos = aux+1.0
   object "invader" invaderPic False (aux,h) (8,-0.2) ()
 
-createSpaceShip :: GameObject ()
-createSpaceShip =
-  let spaceShipBound = [(0,0),(100,0),(50,100)]
-      spaceShipPic   = Basic (Polyg spaceShipBound 1.0 1.0 1.0 Filled)
-  in object "spaceShip" spaceShipPic False (w/2, 20) (0,0) ()
+createInvaderFire :: GameObject ()
+createInvaderFire = do
+  let invaderPic = Basic (Circle 6.0 0.0 1.0 0.0 Filled)
+  let aux = invaderInitialPos
+  let invaderInitialPos = aux+1.0
+  object "invader" invaderPic False (aux,h) (8,-0.2) ()
 
 moveSpaceShipToRight :: Modifiers -> Position -> IOGame GameAttribute () () () ()
 moveSpaceShipToRight _ _ = do
@@ -70,7 +87,9 @@ moveSpaceShipToLeft _ _ = do
 gameCycle :: IOGame GameAttribute () () () ()
 gameCycle = do
   (Score n) <- getGameAttribute
-  printOnScreen (show n) TimesRoman24 (0,0) 1.0 1.0 1.0
+  -- printOnScreen (show n) TimesRoman24 (0,0) 1.0 1.0 1.0
+
+  printOnScreen (show (invaderInitialPos)) TimesRoman24 (0,0) 1.0 1.0 1.0
 
   invader <- findObject "invader" "invaderGroup"
   col1 <- objectLeftMapCollision invader
