@@ -15,11 +15,12 @@ height = 640
 w = fromIntegral width :: GLdouble
 h = fromIntegral height :: GLdouble
 spaceShipSize = 50.0
+bmpList = [("assets/background.bmp", Nothing), ("assets/player2.bmp", Just[(255,0,255)]),
+          ("assets/invader.bmp", Just[(255,0,255)])]
 
 main :: IO ()
 main = do
   let winConfig = ((100,0),(width,height),"A brief example!")
-      bmpList = [("assets/background.bmp", Nothing)]
       gameMap = textureMap 0 1024.0 770.0 w h
       spaceShip = objectGroup "spaceShipGroup" [createSpaceShip]
       spaceShipFire = objectGroup "spaceShipFireGroup" []
@@ -37,20 +38,20 @@ main = do
 
 createSpaceShip :: SpaceInvadersObject
 createSpaceShip =
-  let bound = [(0,0),(spaceShipSize,0),(spaceShipSize/2,spaceShipSize)]
-      pic = Basic (Polyg bound 1.0 1.0 1.0 Filled)
+  --let bound = [(0,0),(spaceShipSize,0),(spaceShipSize/2,spaceShipSize)]
+  let    pic = Tex (47,28) 1
   in object "spaceShip" pic False (w/2, 20) (0,0) ()
 
 createSpaceShipFire :: GLdouble -> GLdouble -> SpaceInvadersObject
 createSpaceShipFire x y =
-  let bound = [(0,0),(1,0),(1,1),(0,1)]
-      pic = Basic (Polyg bound 1.0 1.0 1.0 Filled)
-  in object "spaceShipFire" pic False (x+(spaceShipSize/2),y) (0,10) ()
+  let bound = [(0,0),(7,0),(7,7),(0,7)]
+      pic = Basic (Polyg bound 10.0 10.0 10.0 Filled)
+  in object "spaceShipFire" pic False (x+(spaceShipSize/2),y) (0,30) ()
 
 createInvader :: GLdouble -> SpaceInvadersObject
 createInvader n =
   let bound = [(0,0),(-12.5,0),(-7.25,-12.5)]
-      pic = Basic (Polyg bound 255.0 1.0 1.0 Filled)
+      pic = Tex (50,37) 2
   in object "invader" pic False ((n*spaceShipSize),h) (6,-0.2) ()
 
 createInvaderFire :: GLdouble -> GLdouble -> SpaceInvadersObject
