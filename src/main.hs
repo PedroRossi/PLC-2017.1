@@ -10,6 +10,7 @@ width = 480
 height = 640
 w = fromIntegral width :: GLdouble
 h = fromIntegral height :: GLdouble
+invaderInitialPos = 0.0
 
 main :: IO ()
 main = do
@@ -29,15 +30,18 @@ objectList :: [ ObjectManager () ]
 objectList =
   let spaceShip = objectGroup "spaceShipGroup" [createSpaceShip]
       invader = objectGroup "invaderGroup" [createInvader]
+      -- invaders = objectGroup "invadersGroup" [createInvaders]
   in [spaceShip] ++ genInvaders invader
 
 genInvaders :: ObjectManager () -> [ ObjectManager () ]
-genInvaders x = [x]
+genInvaders x = [x, x, x]
 
 createInvader :: GameObject ()
-createInvader =
+createInvader = do
   let invaderPic = Basic (Circle 6.0 0.0 1.0 0.0 Filled)
-  in object "invader" invaderPic False (w/2,h/2) (-8,8) ()
+  let aux = invaderInitialPos
+  let invaderInitialPos = aux+1.0
+  object "invader" invaderPic False (aux,h) (8,-0.2) ()
 
 createSpaceShip :: GameObject ()
 createSpaceShip =
@@ -73,7 +77,8 @@ gameCycle = do
   col2 <- objectRightMapCollision invader
   when (col1 || col2) (reverseXSpeed invader)
   col3 <- objectTopMapCollision invader
-  when col3 (reverseYSpeed invader)
+  -- when col3 (reverseYSpeed invader)
   col4 <- objectBottomMapCollision invader
+  when col4 (reverseYSpeed invader)
 
   showFPS TimesRoman24 (w-40,0) 1.0 0.0 0.0
