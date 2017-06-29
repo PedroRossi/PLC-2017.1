@@ -53,14 +53,23 @@ createInvader n =
       pic = Basic (Polyg bound 255.0 1.0 1.0 Filled)
   in object "invader" pic False ((n*spaceShipSize),h) (6,-0.2) ()
 
-createInvaderFire :: SpaceInvadersObject
-createInvaderFire = do
-  let invaderPic = Basic (Circle 6.0 0.0 1.0 0.0 Filled)
-  object "invader" invaderPic False (0,h) (8,-0.2) ()
+createInvaderFire :: GLdouble -> GLdouble -> SpaceInvadersObject
+createInvaderFire x y = do
+  let pic = Basic (Circle 6.0 0.0 1.0 0.0 Filled)
+  object "invaderFire" pic False (x,y) (0,-10) ()
 
 -- makeItRain :: SpaceInvadersAction ()
 -- makeItRain = do
---   return
+--   invaders <- getObjectsFromGroup "invaderGroup"
+--   arr <- [(i, (randomInt(0,1)) | i <- invaders]
+--   -- (randomInt (0, length(invaders)))
+--   forM_ arr $ \pos -> do
+--     -- let i = fst pos
+--     let invader = invaders!!0
+--     (pX,pY) <- getObjectPosition invader
+--     let obj = (createInvaderFire (pX) (pY))
+--     addObjectsToGroup [obj] "invaderFireGroup"
+--     drawObject obj
 
 moveSpaceShipToRight :: Modifiers -> Position -> SpaceInvadersAction ()
 moveSpaceShipToRight _ _ = do
@@ -119,6 +128,5 @@ gameCycle = do
         -- atingiu alguem
         setObjectAsleep True invader
         setGameAttribute (Score (n+10))
-
 
   showFPS TimesRoman24 (w-40,0) 1.0 0.0 0.0
